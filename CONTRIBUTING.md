@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for considering contributing to **<project-name>**! Here’s how you can help:
+Thanks for considering contributing to **cardinal**! Here’s how you can help:
 
 ## How to Contribute
 1. **Fork** the repository
@@ -23,9 +23,6 @@ Thanks for considering contributing to **<project-name>**! Here’s how you can 
 
 ## File Architecture
 <!-- Provide an overview of the file architecture of the project, explaining the purpose of key files and directories. -->
-
-## Testing
-<!-- Describe the testing framework used and how to run tests. -->
 
 ## License
 

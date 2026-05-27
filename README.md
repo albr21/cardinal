@@ -1,10 +1,6 @@
-# <project-name>
+# cardinal
 
-<!-- A brief description of the project. -->
-
-## Usage
-
-<!-- Provide instructions on how to use the project, including code examples if applicable. -->
+The central node for everything I build and explore.
 
 ## Contributing
 
@@ -12,4 +8,4 @@ Check out the [CONTRIBUTING](CONTRIBUTING.md) file for guidelines on how to cont
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the AGPL License - see the [LICENSE](LICENSE) file for details.

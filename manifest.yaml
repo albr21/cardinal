@@ -1,8 +1,11 @@
-name: <project-name>
+name: cardinal
 description: |-
-  <project-description>
-version: 0.0.0
+  The central node for everything I build and explore.
+version: 1.0.0
 releases:
+  - version: 1.0.0
+    changes:
+      - Initial release
   - version: 0.0.0
     changes:
       - Under development
