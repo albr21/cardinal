@@ -1,0 +1,20 @@
+{
+  "github": {
+    "token_env": "GITHUB_TOKEN",
+    "sources": [
+      {
+        "type": "user",
+        "name": "albr21",
+        "include_forks": false,
+        "include_archived": true
+      }
+    ],
+    "exclude_repos": [],
+    "pinned_repos": []
+  },
+  "site": {
+    "title": "Cardinal",
+    "description": "The central node for everything I build and explore.",
+    "author": "albr21"
+  }
+}

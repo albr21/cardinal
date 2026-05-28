@@ -19,11 +19,23 @@ Thanks for considering contributing to **cardinal**! Here’s how you can help:
 - Ensure that your code passes existing tests and includes new ones for new features or fixes
 
 ## Development Environment
-<!-- Provide instructions on how to set up a development environment for the project. -->
+- Use Python 3.8 or higher
+- Set up a virtual environment for development with `python -m venv venv`
+- Install dependencies with `pip install -r requirements.txt`
+- Install development dependencies with `pip install -r requirements-dev.txt`
+- Generate data with `python scripts/libs/fetch_data/main.py --with-languages`
+- Serve the website locally with `python -m http.server 8080 --directory src/`
 
 ## File Architecture
-<!-- Provide an overview of the file architecture of the project, explaining the purpose of key files and directories. -->
+- The website code is in the `src` directory
+- Data generation python scripts are in the `scripts/libs/fetch_data` directory
 
+## Testing
+Make sure your changes pass the tests. You can run the tests with:
+
+```bash
+pytest scripts/tests/ --cov=scripts/libs --cov-report=term-missing
+```
 ## License
 
 By contributing, you agree that your contributions will be licensed under the MIT License -- see the [LICENSE](LICENSE) file for details.
