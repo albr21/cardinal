@@ -31,8 +31,9 @@ jobs:
         run: |-
           export GITHUB_TOKEN=${{ secrets.TOKEN }}
           python3 -m pip install -r requirements.txt
-          python3 scripts/libs/fetch_data/main.py --with-languages
+          python3 scripts/libs/fetch_data/main.py --with-languages --with-commits
           cp -r src generated/
+          cp index.html generated/
         shell: bash
 
       - name: Upload Pages Artifact
