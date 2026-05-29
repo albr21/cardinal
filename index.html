@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="The central node for everything I build and explore">
+  <title>Cardinal</title>
+  <link rel="icon" type="image/svg+xml" href="src/static/favicon.svg">
+
+  <link rel="stylesheet" href="src/css/tokens.css">
+  <link rel="stylesheet" href="src/css/theme.css">
+  <link rel="stylesheet" href="src/css/base.css">
+  <link rel="stylesheet" href="src/css/layout.css">
+  <link rel="stylesheet" href="src/css/components.css">
+
+  <script>
+    (function() {
+      const stored = localStorage.getItem('cardinal-theme');
+      const theme = stored || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div class="container header__inner">
+        <a href="#/" class="header__brand">
+          <span class="header__brand-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 18 22 12 16 6"></polyline>
+              <polyline points="8 6 2 12 8 18"></polyline>
+            </svg>
+          </span>
+          <span>Cardinal</span>
+        </a>
+        <nav class="nav">
+          <a href="#/" class="nav__link" data-route="home">Home</a>
+          <a href="#/repos" class="nav__link" data-route="repos">Repositories</a>
+          <a href="#/stats" class="nav__link" data-route="stats">Statistics</a>
+        </nav>
+        <div class="header__actions">
+          <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme"></button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main" id="app-main">
+      <!-- Views are rendered here by the router -->
+    </main>
+
+    <footer class="footer">
+      <div class="container footer__inner">
+        <span id="generated-at"></span>
+        <span class="footer__copyright">Licensed under <a href="https://www.gnu.org/licenses/agpl-3.0.en.html" target="_blank" rel="noopener noreferrer">AGPL-3.0</a> &copy; 2026 Cardinal.</span>
+        <div class="footer__links">
+          <a href="https://github.com/albr21" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+    </footer>
+
+    <div id="modal-backdrop" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="modal"></div>
+    </div>
+  </div>
+
+  <script src="src/js/utils.js"></script>
+  <script src="src/js/icons.js"></script>
+  <script src="src/js/data.js"></script>
+  <script src="src/js/theme.js"></script>
+  <script src="src/js/router.js"></script>
+  <script src="src/js/home.js"></script>
+  <script src="src/js/repos.js"></script>
+  <script src="src/js/stats.js"></script>
+  <script src="src/js/app.js"></script>
+</body>
+</html>

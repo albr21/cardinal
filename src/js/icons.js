@@ -30,5 +30,7 @@ const Icons = (() => {
     archive: () => svg('<polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line>'),
 
     book: () => svg('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>'),
+
+    gitCommit: () => svg('<circle cx="12" cy="12" r="4"></circle><line x1="1" y1="12" x2="8" y2="12"></line><line x1="16" y1="12" x2="23" y2="12"></line>'),
   };
 })();

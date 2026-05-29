@@ -659,41 +659,53 @@
   gap: var(--space-md);
 }
 
-.activity-row {
+.activity-chart {
   display: flex;
-  align-items: center;
-  gap: var(--space-md);
+  align-items: flex-end;
+  gap: var(--space-xs);
+  height: 180px;
+  padding-top: var(--space-md);
 }
 
-.activity-row__label {
-  width: 80px;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-tertiary);
-  text-align: right;
-  flex-shrink: 0;
-}
-
-.activity-row__bar {
+.activity-chart__col {
   flex: 1;
-  height: 24px;
-  background-color: var(--color-bg-tertiary);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-}
-
-.activity-row__fill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
   height: 100%;
-  background-color: var(--color-accent);
-  border-radius: var(--radius-sm);
-  transition: width var(--transition-slow);
-  min-width: 2px;
 }
 
-.activity-row__value {
-  width: 40px;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+.activity-chart__bar-wrap {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.activity-chart__bar {
+  width: 70%;
+  max-width: 40px;
+  min-height: 3px;
+  background-color: var(--color-accent);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: height var(--transition-slow);
+}
+
+.activity-chart__bar:hover {
+  opacity: 0.8;
+}
+
+.activity-chart__count {
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.activity-chart__label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
 }
 
 .size-table {
@@ -791,11 +803,15 @@
 }
 
 .topics-cloud__tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: var(--space-xs) var(--space-md);
   border-radius: var(--radius-full);
   background-color: var(--color-tag-bg);
   color: var(--color-tag-text);
   font-size: var(--font-size-sm);
+  line-height: 1.4;
   transition: background-color var(--transition-fast), transform var(--transition-fast);
 }
 
@@ -818,7 +834,7 @@
 
 .owners-breakdown {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: var(--space-xl);
 }
 
@@ -897,10 +913,97 @@
   }
 
   .top-repo-bar__name {
-    width: 120px;
+    width: 100px;
   }
 
-  .activity-row__label {
-    width: 50px;
+  .activity-chart {
+    gap: 2px;
   }
+
+  .owner-card {
+    padding: var(--space-md);
+  }
+
+  .owner-card__stats {
+    gap: var(--space-sm);
+  }
+
+  .owner-card__stat-value {
+    font-size: var(--font-size-lg);
+  }
+
+  .pages-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* GitHub Pages cards */
+.pages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-md);
+}
+
+.pages-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--color-text-primary);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.pages-card:hover {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent-subtle);
+  transform: translateY(-1px);
+}
+
+.pages-card__favicon {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.pages-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.pages-card__name {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-md);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pages-card__url {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pages-card__arrow {
+  display: flex;
+  align-items: center;
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.pages-card__arrow svg {
+  width: 100%;
+  height: 100%;
 }

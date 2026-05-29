@@ -17,8 +17,7 @@ const Theme = (() => {
 
   function toggle() {
     const current = document.documentElement.getAttribute("data-theme");
-    const next = current === DARK ? LIGHT : DARK;
-    apply(next);
+    apply(current === DARK ? LIGHT : DARK);
   }
 
   function updateToggleIcon(theme) {
@@ -31,9 +30,7 @@ const Theme = (() => {
   function init() {
     apply(getPreferred());
     const btn = document.getElementById("theme-toggle");
-    if (btn) {
-      btn.addEventListener("click", toggle);
-    }
+    if (btn) btn.addEventListener("click", toggle);
 
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
       if (!localStorage.getItem(STORAGE_KEY)) {
@@ -42,17 +39,5 @@ const Theme = (() => {
     });
   }
 
-  return { init, toggle, apply };
+  return { init };
 })();
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    if (typeof initializeComponents === 'undefined') {
-      Theme.init();
-    }
-  });
-} else {
-  if (typeof initializeComponents === 'undefined') {
-    Theme.init();
-  }
-}

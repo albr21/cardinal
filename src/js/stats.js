@@ -1,33 +1,81 @@
-const Stats = (() => {
-  const LANG_COLORS = {
-    JavaScript: "#f1e05a", TypeScript: "#3178c6", Python: "#3572A5",
-    Java: "#b07219", Go: "#00ADD8", Rust: "#dea584", "C++": "#f34b7d",
-    C: "#555555", "C#": "#239120", Ruby: "#701516", PHP: "#4F5D95",
-    Swift: "#F05138", Kotlin: "#A97BFF", Shell: "#89e051", HTML: "#e34c26",
-    CSS: "#563d7c", Dockerfile: "#384d54", Makefile: "#427819", Vue: "#41b883",
-    HCL: "#844fba",
-  };
-
-  // Rough estimate: 1 KB ≈ 25 lines of code (industry approximation)
+const StatsView = (() => {
   const LINES_PER_KB = 25;
 
-  async function init() {
-    Theme.init();
+  function render() {
+    return `
+      <div class="container">
+        <section class="hero">
+          <h1 class="hero__title">Statistics</h1>
+          <p class="hero__description">In-depth analytics across all repositories.</p>
+        </section>
 
-    try {
-      await DataStore.load();
-    } catch {
-      return;
-    }
+        <section class="stats-section">
+          <h2 class="stats-section__title">Overview</h2>
+          <div class="stats-cards" id="stats-overview-cards"></div>
+        </section>
 
+        <section class="stats-section">
+          <h2 class="stats-section__title">Language Distribution</h2>
+          <div class="stats-panel">
+            <div class="language-chart" id="language-chart"></div>
+            <div class="language-details" id="language-details"></div>
+          </div>
+        </section>
+
+        <section class="stats-section">
+          <h2 class="stats-section__title">Activity Timeline</h2>
+          <div class="stats-panel">
+            <div class="activity-grid" id="activity-grid"></div>
+          </div>
+        </section>
+
+        <section class="stats-section">
+          <h2 class="stats-section__title">Top Repositories by Stars</h2>
+          <div class="stats-panel">
+            <div class="top-repos-chart" id="top-repos-chart"></div>
+          </div>
+        </section>
+
+        <section class="stats-section" id="commits-section" style="display:none;">
+          <h2 class="stats-section__title">Top Repositories by Commits</h2>
+          <div class="stats-panel">
+            <div class="top-repos-chart" id="top-repos-commits-chart"></div>
+          </div>
+        </section>
+
+        <section class="stats-section">
+          <h2 class="stats-section__title">Code Size Estimates</h2>
+          <div class="stats-panel">
+            <div class="size-table" id="size-table"></div>
+          </div>
+        </section>
+
+        <section class="stats-section">
+          <h2 class="stats-section__title">Topics</h2>
+          <div class="stats-panel">
+            <div class="topics-cloud" id="topics-cloud"></div>
+          </div>
+        </section>
+
+        <section class="stats-section">
+          <h2 class="stats-section__title">By Owner / Organization</h2>
+          <div class="stats-panel">
+            <div class="owners-breakdown" id="owners-breakdown"></div>
+          </div>
+        </section>
+      </div>
+    `;
+  }
+
+  function init() {
     renderOverviewCards();
     renderLanguageChart();
     renderActivityTimeline();
     renderSizeTable();
     renderTopRepos();
+    renderTopReposByCommits();
     renderTopicsCloud();
     renderOwnersBreakdown();
-    renderGeneratedAt();
   }
 
   function renderOverviewCards() {
@@ -36,9 +84,10 @@ const Stats = (() => {
     const totalSize = repos.reduce((sum, r) => sum + (r.size_kb || 0), 0);
     const estimatedLines = totalSize * LINES_PER_KB;
     const avgStars = repos.length > 0 ? Math.round(stats.totalStars / repos.length) : 0;
-    const withPages = repos.filter((r) => r.pages_url).length;
+    const withPages = repos.filter((r) => r.pages_url || r.homepage).length;
     const owners = new Set(repos.map((r) => r.owner)).size;
-    const totalIssues = repos.reduce((sum, r) => sum + (r.open_issues || 0), 0);
+    const totalCommits = repos.reduce((sum, r) => sum + (r.commit_count || 0), 0);
+    const hasCommits = repos.some((r) => r.commit_count != null);
 
     const container = document.getElementById("stats-overview-cards");
     if (!container) return;
@@ -51,28 +100,35 @@ const Stats = (() => {
       </div>
       <div class="stat-card">
         <div class="stat-card__icon">${Icons.star()}</div>
-        <span class="stat-card__value">${formatNumber(stats.totalStars)}</span>
+        <span class="stat-card__value">${Utils.formatNumber(stats.totalStars)}</span>
         <span class="stat-card__label">Total Stars</span>
       </div>
       <div class="stat-card">
         <div class="stat-card__icon">${Icons.gitFork()}</div>
-        <span class="stat-card__value">${formatNumber(stats.totalForks)}</span>
+        <span class="stat-card__value">${Utils.formatNumber(stats.totalForks)}</span>
         <span class="stat-card__label">Total Forks</span>
       </div>
+      ${hasCommits ? `
+      <div class="stat-card">
+        <div class="stat-card__icon">${Icons.gitCommit()}</div>
+        <span class="stat-card__value">${Utils.formatNumber(totalCommits)}</span>
+        <span class="stat-card__label">Total Commits</span>
+      </div>
+      ` : ""}
       <div class="stat-card">
         <div class="stat-card__icon">${Icons.code()}</div>
-        <span class="stat-card__value">~${formatNumber(estimatedLines)}</span>
+        <span class="stat-card__value">~${Utils.formatNumber(estimatedLines)}</span>
         <span class="stat-card__label">Est. Lines of Code</span>
       </div>
       <div class="stat-card">
         <div class="stat-card__icon">${Icons.archive()}</div>
-        <span class="stat-card__value">${formatSize(totalSize)}</span>
+        <span class="stat-card__value">${Utils.formatSize(totalSize)}</span>
         <span class="stat-card__label">Total Code Size</span>
       </div>
       <div class="stat-card">
         <div class="stat-card__icon">${Icons.globe()}</div>
         <span class="stat-card__value">${withPages}</span>
-        <span class="stat-card__label">GitHub Pages</span>
+        <span class="stat-card__label">Websites</span>
       </div>
       <div class="stat-card">
         <div class="stat-card__icon">${Icons.github()}</div>
@@ -106,23 +162,22 @@ const Stats = (() => {
     if (chartEl) {
       const barSegments = sorted.map(([lang, data]) => {
         const pct = (data.count / total) * 100;
-        const color = LANG_COLORS[lang] || "#8b8b8b";
+        const color = Utils.getLangColor(lang);
         return `<div class="language-bar__segment" style="width:${pct}%;background-color:${color}" title="${lang}: ${data.count} repos"></div>`;
       }).join("");
-
       chartEl.innerHTML = `<div class="language-bar">${barSegments}</div>`;
     }
 
     const detailsEl = document.getElementById("language-details");
     if (detailsEl) {
       detailsEl.innerHTML = sorted.map(([lang, data]) => {
-        const color = LANG_COLORS[lang] || "#8b8b8b";
+        const color = Utils.getLangColor(lang);
         const pct = ((data.count / total) * 100).toFixed(1);
         return `
           <div class="language-detail">
             <span class="language-detail__name">
               <span class="language-legend__dot" style="background-color:${color}"></span>
-              ${escapeHtml(lang)}
+              ${Utils.escapeHtml(lang)}
             </span>
             <span class="language-detail__count">${data.count} repos (${pct}%)</span>
           </div>
@@ -134,56 +189,41 @@ const Stats = (() => {
   function renderActivityTimeline() {
     const repos = DataStore.getRepos();
     const now = new Date();
-    const periods = [
-      { label: "This week", days: 7 },
-      { label: "This month", days: 30 },
-      { label: "3 months", days: 90 },
-      { label: "6 months", days: 180 },
-      { label: "This year", days: 365 },
-      { label: "Older", days: Infinity },
-    ];
+    const currentYear = now.getFullYear();
 
-    const counts = periods.map((p) => {
-      const count = repos.filter((r) => {
-        if (!r.pushed_at) return p.days === Infinity;
-        const diff = (now - new Date(r.pushed_at)) / (1000 * 60 * 60 * 24);
-        if (p.days === Infinity) return diff > 365;
-        return diff <= p.days;
-      }).length;
-      return { ...p, count };
+    // Build yearly activity (last 6 years including current)
+    const years = [];
+    for (let i = 5; i >= 0; i--) {
+      years.push({ label: String(currentYear - i), year: currentYear - i, count: 0 });
+    }
+
+    repos.forEach((r) => {
+      if (!r.pushed_at) return;
+      const y = new Date(r.pushed_at).getFullYear();
+      const entry = years.find((e) => e.year === y);
+      if (entry) entry.count++;
     });
 
-    for (let i = counts.length - 2; i >= 0; i--) {
-      // counts[i] includes all repos pushed within N days, make it exclusive
-    }
-    // Actually recompute as exclusive ranges
-    const exclusive = [];
-    let prevDays = 0;
-    for (const p of periods) {
-      const count = repos.filter((r) => {
-        if (!r.pushed_at) return p.days === Infinity;
-        const diff = (now - new Date(r.pushed_at)) / (1000 * 60 * 60 * 24);
-        if (p.days === Infinity) return diff > prevDays;
-        return diff <= p.days && diff > prevDays;
-      }).length;
-      exclusive.push({ label: p.label, count });
-      if (p.days !== Infinity) prevDays = p.days;
-    }
-
-    const maxCount = Math.max(...exclusive.map((e) => e.count), 1);
-
+    const maxCount = Math.max(...years.map((y) => y.count), 1);
     const container = document.getElementById("activity-grid");
     if (!container) return;
 
-    container.innerHTML = exclusive.map((item) => `
-      <div class="activity-row">
-        <span class="activity-row__label">${item.label}</span>
-        <div class="activity-row__bar">
-          <div class="activity-row__fill" style="width:${(item.count / maxCount) * 100}%"></div>
-        </div>
-        <span class="activity-row__value">${item.count}</span>
+    container.innerHTML = `
+      <div class="activity-chart">
+        ${years.map((y) => {
+          const heightPct = (y.count / maxCount) * 100;
+          return `
+            <div class="activity-chart__col">
+              <div class="activity-chart__bar-wrap">
+                <div class="activity-chart__bar" style="height:${heightPct}%" title="${y.count} repos updated in ${y.label}"></div>
+              </div>
+              <span class="activity-chart__count">${y.count}</span>
+              <span class="activity-chart__label">${y.label}</span>
+            </div>
+          `;
+        }).join("")}
       </div>
-    `).join("");
+    `;
   }
 
   function renderSizeTable() {
@@ -199,10 +239,10 @@ const Stats = (() => {
       const lines = (repo.size_kb || 0) * LINES_PER_KB;
       return `
         <tr>
-          <td>${escapeHtml(repo.name)}</td>
-          <td>${escapeHtml(repo.language || "—")}</td>
-          <td>${formatSize(repo.size_kb || 0)}</td>
-          <td>~${formatNumber(lines)}</td>
+          <td>${Utils.escapeHtml(repo.name)}</td>
+          <td>${Utils.escapeHtml(repo.language || "\u2014")}</td>
+          <td>${Utils.formatSize(repo.size_kb || 0)}</td>
+          <td>~${Utils.formatNumber(lines)}</td>
           <td><span class="size-table__bar" style="width:${pct}%"></span></td>
         </tr>
       `;
@@ -210,15 +250,7 @@ const Stats = (() => {
 
     container.innerHTML = `
       <table>
-        <thead>
-          <tr>
-            <th>Repository</th>
-            <th>Language</th>
-            <th>Size</th>
-            <th>Est. Lines</th>
-            <th>Relative</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Repository</th><th>Language</th><th>Size</th><th>Est. Lines</th><th>Relative</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     `;
@@ -236,7 +268,7 @@ const Stats = (() => {
       const pct = ((repo.stars || 0) / maxStars) * 100;
       return `
         <div class="top-repo-bar">
-          <span class="top-repo-bar__name" title="${escapeHtml(repo.full_name)}">${escapeHtml(repo.name)}</span>
+          <span class="top-repo-bar__name" title="${Utils.escapeHtml(repo.full_name)}">${Utils.escapeHtml(repo.name)}</span>
           <div class="top-repo-bar__bar">
             <div class="top-repo-bar__fill" style="width:${pct}%"></div>
           </div>
@@ -246,13 +278,39 @@ const Stats = (() => {
     }).join("");
   }
 
+  function renderTopReposByCommits() {
+    const repos = DataStore.getRepos();
+    const withCommits = repos.filter((r) => r.commit_count != null && r.commit_count > 0);
+    if (withCommits.length === 0) return;
+
+    const section = document.getElementById("commits-section");
+    if (section) section.style.display = "";
+
+    const top = [...withCommits].sort((a, b) => b.commit_count - a.commit_count).slice(0, 10);
+    const maxCommits = top[0]?.commit_count || 1;
+
+    const container = document.getElementById("top-repos-commits-chart");
+    if (!container) return;
+
+    container.innerHTML = top.map((repo) => {
+      const pct = (repo.commit_count / maxCommits) * 100;
+      return `
+        <div class="top-repo-bar">
+          <span class="top-repo-bar__name" title="${Utils.escapeHtml(repo.full_name)}">${Utils.escapeHtml(repo.name)}</span>
+          <div class="top-repo-bar__bar">
+            <div class="top-repo-bar__fill" style="width:${pct}%"></div>
+          </div>
+          <span class="top-repo-bar__value">${Utils.formatNumber(repo.commit_count)}</span>
+        </div>
+      `;
+    }).join("");
+  }
+
   function renderTopicsCloud() {
     const repos = DataStore.getRepos();
     const topicCounts = {};
     repos.forEach((r) => {
-      (r.topics || []).forEach((t) => {
-        topicCounts[t] = (topicCounts[t] || 0) + 1;
-      });
+      (r.topics || []).forEach((t) => { topicCounts[t] = (topicCounts[t] || 0) + 1; });
     });
 
     const sorted = Object.entries(topicCounts).sort((a, b) => b[1] - a[1]);
@@ -262,11 +320,11 @@ const Stats = (() => {
     if (!container) return;
 
     container.innerHTML = sorted.map(([topic, count]) => {
-      let sizeClass = "";
       const ratio = count / maxCount;
+      let sizeClass = "";
       if (ratio > 0.6) sizeClass = "topics-cloud__tag--lg";
       else if (ratio > 0.3) sizeClass = "topics-cloud__tag--md";
-      return `<span class="topics-cloud__tag ${sizeClass}" title="${count} repos">${escapeHtml(topic)}</span>`;
+      return `<span class="topics-cloud__tag ${sizeClass}" title="${count} repos">${Utils.escapeHtml(topic)}</span>`;
     }).join("");
   }
 
@@ -293,10 +351,10 @@ const Stats = (() => {
         return `
           <div class="owner-card">
             <div class="owner-card__header">
-              <img class="owner-card__avatar" src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(owner)}" loading="lazy">
+              <img class="owner-card__avatar" src="${Utils.escapeHtml(avatarUrl)}" alt="${Utils.escapeHtml(owner)}" loading="lazy">
               <div>
-                <h3 class="owner-card__name">${escapeHtml(owner)}</h3>
-                <span class="owner-card__type">${escapeHtml(ownerType)}</span>
+                <h3 class="owner-card__name">${Utils.escapeHtml(owner)}</h3>
+                <span class="owner-card__type">${Utils.escapeHtml(ownerType)}</span>
               </div>
             </div>
             <div class="owner-card__stats">
@@ -305,11 +363,11 @@ const Stats = (() => {
                 <div class="owner-card__stat-label">Repos</div>
               </div>
               <div class="owner-card__stat">
-                <div class="owner-card__stat-value">${formatNumber(data.stars)}</div>
+                <div class="owner-card__stat-value">${Utils.formatNumber(data.stars)}</div>
                 <div class="owner-card__stat-label">Stars</div>
               </div>
               <div class="owner-card__stat">
-                <div class="owner-card__stat-value">${formatNumber(data.forks)}</div>
+                <div class="owner-card__stat-value">${Utils.formatNumber(data.forks)}</div>
                 <div class="owner-card__stat-label">Forks</div>
               </div>
             </div>
@@ -318,32 +376,5 @@ const Stats = (() => {
       }).join("");
   }
 
-  function renderGeneratedAt() {
-    const el = document.getElementById("generated-at");
-    if (!el) return;
-    const date = DataStore.getGeneratedAt();
-    el.textContent = date ? `Generated: ${toRFC3339Local(new Date(date))}` : "";
-  }
-
-  function formatNumber(n) {
-    if (n >= 1000000) return (n / 1000000).toFixed(1) + "M";
-    if (n >= 1000) return (n / 1000).toFixed(1) + "k";
-    return n.toString();
-  }
-
-  function formatSize(kb) {
-    if (kb >= 1024 * 1024) return (kb / (1024 * 1024)).toFixed(1) + " GB";
-    if (kb >= 1024) return (kb / 1024).toFixed(1) + " MB";
-    return kb + " KB";
-  }
-
-  function escapeHtml(str) {
-    const div = document.createElement("div");
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  return { init };
+  return { render, init };
 })();
-
-document.addEventListener("DOMContentLoaded", Stats.init);
