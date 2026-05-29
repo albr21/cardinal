@@ -59,7 +59,6 @@ def check_github_pages(owner: str, repo: str, token: str) -> str | None:
         pass
     return None
 
-
 def fetch_languages(owner: str, repo: str, token: str) -> dict:
     """Fetch language breakdown for a repository."""
     url = f"https://api.github.com/repos/{owner}/{repo}/languages"
@@ -67,3 +66,48 @@ def fetch_languages(owner: str, repo: str, token: str) -> dict:
         return github_request(url, token)
     except HTTPError:
         return {}
+
+def fetch_commit_count(owner: str, repo: str, token: str) -> int | None:
+    """Fetch total commit count for the default branch using the Contributors API."""
+    url = f"https://api.github.com/repos/{owner}/{repo}/contributors?per_page=1&anon=true"
+    try:
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github.v3+json",
+            "User-Agent": "data-fetcher",
+        }
+        req = Request(url, headers=headers)
+        with urlopen(req) as response:
+            # Parse Link header to get last page number for total contributors
+            # Instead, sum contributions from all contributors
+            pass
+    except HTTPError:
+        pass
+
+    # Use the commits endpoint with per_page=1 and parse the Link header
+    url = f"https://api.github.com/repos/{owner}/{repo}/commits?per_page=1"
+    try:
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github.v3+json",
+            "User-Agent": "data-fetcher",
+        }
+        req = Request(url, headers=headers)
+        with urlopen(req) as response:
+            link_header = response.headers.get("Link", "")
+            if 'rel="last"' in link_header:
+                # Parse: <...?per_page=1&page=123>; rel="last"
+                for part in link_header.split(","):
+                    if 'rel="last"' in part:
+                        url_part = part.split(";")[0].strip().strip("<>")
+                        # Extract page number
+                        for param in url_part.split("?")[1].split("&"):
+                            if param.startswith("page="):
+                                return int(param.split("=")[1])
+            else:
+                # Only one page means <= 1 commit
+                data = json.loads(response.read().decode("utf-8"))
+                return len(data) if data else 0
+    except (HTTPError, URLError, ValueError):
+        pass
+    return None

@@ -2,9 +2,9 @@ import json
 import time
 from pathlib import Path
 
-from .github_api import check_github_pages, fetch_languages
+from .github_api import check_github_pages, fetch_commit_count, fetch_languages
 
-def extract_repo_data(repo: dict, token: str, pinned_repos: list) -> dict:
+def extract_repo_data(repo: dict, token: str, pinned_repos: list, with_commits: bool = False) -> dict:
     """Extract relevant data from a GitHub API repo object."""
     owner = repo["owner"]["login"]
     name = repo["name"]
@@ -12,6 +12,11 @@ def extract_repo_data(repo: dict, token: str, pinned_repos: list) -> dict:
 
     # Check for GitHub Pages
     pages_url = check_github_pages(owner, name, token)
+
+    # Fetch commit count if requested
+    commit_count = None
+    if with_commits:
+        commit_count = fetch_commit_count(owner, name, token)
 
     return {
         "name": name,
@@ -35,15 +40,16 @@ def extract_repo_data(repo: dict, token: str, pinned_repos: list) -> dict:
         "is_fork": repo.get("fork", False),
         "is_archived": repo.get("archived", False),
         "is_pinned": full_name in pinned_repos,
+        "commit_count": commit_count,
     }
 
-def process_repos(repos: list, token: str, pinned_repos: list, with_languages: bool = False) -> tuple[list, dict]:
+def process_repos(repos: list, token: str, pinned_repos: list, with_languages: bool = False, with_commits: bool = False) -> tuple[list, dict]:
     """Process raw repos into structured data + owner avatars."""
     repos_data = []
     owner_avatars = {}
 
     for repo in repos:
-        data = extract_repo_data(repo, token, pinned_repos)
+        data = extract_repo_data(repo, token, pinned_repos, with_commits=with_commits)
 
         owner_login = repo["owner"]["login"]
         if owner_login not in owner_avatars:

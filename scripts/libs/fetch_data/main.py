@@ -23,6 +23,11 @@ def main():
         action="store_true",
         help="Fetch language breakdown per repo (slower, more API calls)",
     )
+    parser.add_argument(
+        "--with-commits",
+        action="store_true",
+        help="Fetch commit count per repo (slower, more API calls)",
+    )
     args = parser.parse_args()
 
     config = load_config(args.config)
@@ -43,7 +48,7 @@ def main():
     unique_repos = fetch_all_repos(github_config.get("sources", []), token, exclude_repos, )
 
     print(f"Processing {len(unique_repos)} repositories...")
-    repos_data, owner_avatars = process_repos(unique_repos, token, pinned_repos, args.with_languages)
+    repos_data, owner_avatars = process_repos(unique_repos, token, pinned_repos, args.with_languages, args.with_commits)
 
     output = build_output(repos_data, owner_avatars, site_config)
     output_path = write_output(output, args.output)
