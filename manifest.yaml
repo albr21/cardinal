@@ -1,8 +1,11 @@
 name: cardinal
 description: |-
   The central node for everything I build and explore.
-version: 1.0.0
+version: 1.0.1
 releases:
+  - version: 1.0.1
+    changes:
+      - Fix layout issues on mobile devices
   - version: 1.0.0
     changes:
       - Initial release
