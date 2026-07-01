@@ -9,7 +9,9 @@
         "include_archived": true
       }
     ],
-    "exclude_repos": [],
+    "exclude_repos": [
+      "badges"
+    ],
     "pinned_repos": []
   },
   "site": {
