@@ -1,0 +1,29 @@
+name: 🕹️ Deploy Web Application
+
+run-name: 🕹️ Deploy Web Application
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Web Application
+    uses: albr21/gha-reusable-workflows/.github/workflows/reusable-deploy-web-application.yml@main
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+    with:
+      build-command: |-
+        export GITHUB_TOKEN="$BUILD_TOKEN"
+        python3 -m pip install -r requirements.txt
+        python3 scripts/libs/fetch_data/main.py --with-languages --with-commits
+      source-paths: |-
+        src
+        index.html
+    secrets:
+      BUILD_TOKEN: ${{ secrets.TOKEN }}
