@@ -1,0 +1,48 @@
+name: 🕹️ Deploy Web App
+
+run-name: 🕹️ Deploy Web App
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy Web App
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 1
+          ref: ${{ github.sha }}
+
+      - name: Build
+        run: |-
+          export GITHUB_TOKEN=${{ secrets.TOKEN }}
+          python3 -m pip install -r requirements.txt
+          python3 scripts/libs/fetch_data/main.py --with-languages --with-commits
+          mkdir generated
+          cp -r src generated/src
+          cp index.html generated/
+        shell: bash
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: 'generated/'
+          retention-days: 2
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5.0.0
