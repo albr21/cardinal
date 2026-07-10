@@ -38,4 +38,4 @@ pytest scripts/tests/ --cov=scripts/libs --cov-report=term-missing
 ```
 ## License
 
-By contributing, you agree that your contributions will be licensed under the MIT License -- see the [LICENSE](LICENSE) file for details.
+By contributing, you agree that your contributions will be licensed under the AGPL License -- see the [LICENSE](LICENSE) file for details.
