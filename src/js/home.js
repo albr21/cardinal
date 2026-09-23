@@ -1,4 +1,6 @@
 const HomeView = (() => {
+  const FAVICON_EXTENSIONS = ["svg", "png", "jpeg", "jpg", "webp", "gif", "ico"];
+
   function render() {
     return `
       <div class="container">
@@ -150,6 +152,26 @@ const HomeView = (() => {
       .join("");
   }
 
+  function loadFavicons(container) {
+    container.querySelectorAll("[data-favicon-base-url]").forEach((image) => {
+      let extensionIndex = 0;
+
+      const loadNextFavicon = () => {
+        if (extensionIndex >= FAVICON_EXTENSIONS.length) {
+          image.onerror = null;
+          image.src = "src/static/favicon.svg";
+          return;
+        }
+
+        image.src = `${image.dataset.faviconBaseUrl}.${FAVICON_EXTENSIONS[extensionIndex]}`;
+        extensionIndex += 1;
+      };
+
+      image.addEventListener("error", loadNextFavicon);
+      loadNextFavicon();
+    });
+  }
+
   function renderGitHubPages() {
     const repos = DataStore.getRepos();
     const withPages = repos.filter((r) => r.pages_url || r.homepage);
@@ -164,11 +186,10 @@ const HomeView = (() => {
       .map((repo) => {
         const siteUrl = repo.pages_url || repo.homepage;
         const domain = new URL(siteUrl).hostname;
-        const faviconUrl = `${siteUrl.replace(/\/$/, '')}/src/static/favicon.svg`;
+        const faviconBaseUrl = `${siteUrl.replace(/\/$/, '')}/src/static/favicon`;
         return `
           <a href="${Utils.escapeHtml(siteUrl)}" target="_blank" rel="noopener noreferrer" class="pages-card">
-            <img class="pages-card__favicon" src="${faviconUrl}" alt="" width="24" height="24"
-              onerror="this.onerror=null;this.src='src/static/favicon.svg'">
+            <img class="pages-card__favicon" data-favicon-base-url="${Utils.escapeHtml(faviconBaseUrl)}" alt="" width="24" height="24">
             <div class="pages-card__info">
               <span class="pages-card__name">${Utils.escapeHtml(repo.name)}</span>
               <span class="pages-card__url">${Utils.escapeHtml(domain)}</span>
@@ -178,6 +199,8 @@ const HomeView = (() => {
         `;
       })
       .join("");
+
+    loadFavicons(container);
   }
 
   return { render, init };
