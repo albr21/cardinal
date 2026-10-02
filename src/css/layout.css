@@ -203,8 +203,13 @@
 
 @media (max-width: 768px) {
   .repo-grid {
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-md);
+  }
+
+  .header__inner {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--space-sm);
   }
 
   .header__brand span:not(.header__brand-icon) {
